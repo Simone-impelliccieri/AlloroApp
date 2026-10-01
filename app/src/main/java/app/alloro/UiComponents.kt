@@ -1,5 +1,6 @@
 package app.alloro
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +21,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+private val DATE_FORMAT = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ITALIAN)
+
+fun formatDate(date: LocalDate): String = date.format(DATE_FORMAT)
+
+/** Due decimali con la virgola, oppure un trattino quando il valore non è ancora calcolabile. */
+fun formatDecimal(value: Double?, decimals: Int = 2): String =
+    value?.let { String.format(Locale.ITALIAN, "%.${decimals}f", it) } ?: "—"
+
+fun ExamResult.label(): String = when (this) {
+    is ExamResult.Graded -> if (honors) "$grade e lode" else "$grade"
+    ExamResult.Qualified -> "Idoneo"
+}
+
+fun CareerSettings.degreeLabel(): String =
+    listOfNotNull(degreeName, degreeLevel?.label, "$totalCredits CFU").joinToString(" · ")
 
 @Composable
 fun AppScreenHeader(
@@ -80,6 +101,57 @@ fun AppEmptyState(
         if (action != null && onAction != null) {
             FilledTonalButton(onClick = onAction, modifier = Modifier.padding(top = 14.dp)) {
                 Text(action)
+            }
+        }
+    }
+}
+
+@Composable
+fun AppSectionTitle(text: String, modifier: Modifier = Modifier) {
+    Text(text, modifier.padding(top = 24.dp, bottom = 8.dp), style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold)
+}
+
+/** Un valore calcolato con la sua etichetta, nei riquadri di Riepilogo e Statistiche. */
+@Composable
+fun StatTile(label: String, value: String, modifier: Modifier = Modifier) {
+    Surface(modifier, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(Modifier.padding(14.dp)) {
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(value, Modifier.padding(top = 4.dp), style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+/** Riga del libretto: nome, professore, data, CFU ed esito; il tocco apre la modifica. */
+@Composable
+fun ExamRow(exam: Exam, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        modifier.fillMaxWidth().padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Row(Modifier.clickable(onClick = onClick).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(exam.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                val details = listOfNotNull(
+                    exam.professor.takeIf { it.isNotBlank() },
+                    formatDate(exam.date),
+                    "${exam.credits} CFU"
+                ).joinToString(" · ")
+                Text(details, Modifier.padding(top = 2.dp), style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
+            Surface(
+                Modifier.padding(start = 12.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = if (exam.result is ExamResult.Graded) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.secondaryContainer
+            ) {
+                Text(exam.result.label(), Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
             }
         }
     }

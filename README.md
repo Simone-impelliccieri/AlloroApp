@@ -1,7 +1,9 @@
 # AlloroApp
 
-Applicazione Android per tracciare i progressi universitari: esami superati e
-da sostenere, CFU acquisiti, medie e base di laurea.
+Applicazione Android per tracciare i progressi universitari. Al primo avvio
+chiede il corso di laurea per fissare i CFU totali; poi registra gli esami
+sostenuti (con voto o idoneità) e calcola CFU acquisiti, medie, base di laurea
+e una proiezione del voto finale.
 
 App nativa realizzata con Kotlin, Jetpack Compose e Material 3. Libretto e
 preferenze sono memorizzati solo nell'app sul dispositivo. Non servono account

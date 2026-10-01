@@ -42,4 +42,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.activity:activity-compose:1.13.0")
     testImplementation("junit:junit:4.13.2")
+    // Nei test JVM l'org.json di Android è solo uno stub: serve l'implementazione reale per StoreCodec.
+    testImplementation("org.json:json:20260814")
 }
