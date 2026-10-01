@@ -19,6 +19,22 @@ app/src/test/java/app/alloro/   test unitari JUnit
 docs/                           documentazione di progetto
 ```
 
+## Release
+
+La release viene firmata con la chiave indicata in `keystore.properties`, nella
+radice del progetto. Il file è escluso da git e contiene `storeFile`,
+`storePassword`, `keyAlias` e `keyPassword`. Senza di esso `assembleRelease`
+produce un APK non firmato.
+
+```sh
+./gradlew :app:assembleRelease   # app/build/outputs/apk/release/app-release.apk
+./gradlew :app:bundleRelease     # AAB per il Play Store
+```
+
+Prima di ogni nuova release aumenta `versionCode` in `app/build.gradle.kts`.
+Conserva una copia della chiave e delle password: senza, non si possono più
+pubblicare aggiornamenti dell'app.
+
 ## License
 
 This project is licensed under the MIT License.
